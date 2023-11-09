@@ -19,7 +19,7 @@ object App2 {
 
     import spark.implicits._
 
-    val binaries = spark.read.format("binaryFile").load("s3a://sramirez-geep-demo/row_data/*.tar.gz")
+    val binaries = spark.read.format("binaryFile").load("s3a://sramirez-geep-demo/row_data/**/*.tar.gz")
 
     val records: Dataset[MainRecord] = binaries.select($"path").as[String].flatMap(
       objectName => {
@@ -35,7 +35,7 @@ object App2 {
       }
     )
 
-    val recordsWithFolder = records.withColumn("folder_id", split(input_file_name,"/").getItem(6))
+    val recordsWithFolder = records.withColumn("folder_id", split(input_file_name,"/").getItem(4))
 
     recordsWithFolder.write.partitionBy("folder_id").mode("overwrite").parquet("s3a://sramirez-geep-demo/output_files")
   }
